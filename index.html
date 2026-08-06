@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام إدارة الروضة والحضانة الشامل</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --bg-color: #f2f2f7;
+            --card-bg: #ffffff;
+            --text-main: #1c1c1e;
+            --text-sub: #8e8e93;
+            
+            --tile-blue: linear-gradient(135deg, #007aff, #0056b3);
+            --tile-orange: linear-gradient(135deg, #ff9500, #d97706);
+            --tile-purple: linear-gradient(135deg, #af52de, #7c3aed);
+            --tile-green: linear-gradient(135deg, #34c759, #059669);
+            --tile-red: linear-gradient(135deg, #ff3b30, #dc2626);
+            --tile-teal: linear-gradient(135deg, #5ac8fa, #0284c7);
+            --tile-yellow: linear-gradient(135deg, #ffcc00, #d97706);
+            --tile-indigo: linear-gradient(135deg, #5856d6, #3730a3);
+
+            --radius-lg: 22px;
+            --radius-md: 16px;
+            --shadow-ios: 0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            padding-bottom: 90px;
+        }
+
+        /* LOGIN SCREEN */
+        #login-screen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-color);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 30px 24px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: var(--shadow-ios);
+            text-align: center;
+        }
+
+        .login-card i.main-icon {
+            font-size: 3rem;
+            color: #007aff;
+            margin-bottom: 12px;
+        }
+
+        .login-card h2 {
+            font-size: 1.3rem;
+            margin-bottom: 6px;
+        }
+
+        .login-card p {
+            font-size: 0.82rem;
+            color: var(--text-sub);
+            margin-bottom: 20px;
+        }
+
+        header {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 16px 20px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 0.5px solid rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .header-actions { display: flex; gap: 8px; }
+
+        .header-btn {
+            background: #e5e5ea;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .header-btn:hover {
+            background: #d1d1d6;
+        }
+
+        .header-btn.btn-accent {
+            background: #007aff;
+            color: #ffffff;
+        }
+
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            border-radius: var(--radius-md);
+            padding: 12px;
+            color: white;
+            box-shadow: var(--shadow-ios);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 85px;
+        }
+
+        .stat-box.green { background: var(--tile-green); }
+        .stat-box.red { background: var(--tile-red); }
+        .stat-box.blue { background: var(--tile-blue); }
+        .stat-box.orange { background: var(--tile-orange); }
+
+        .stat-title { font-size: 0.75rem; opacity: 0.9; font-weight: 500; }
+        .stat-value { font-size: 0.95rem; font-weight: 800; margin-top: 4px; }
+
+        .grid-tiles {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .tile-card {
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            color: white;
+            box-shadow: var(--shadow-ios);
+            cursor: pointer;
+            transition: transform 0.2s ease, opacity 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 110px;
+        }
+
+        .tile-card:active { transform: scale(0.97); opacity: 0.9; }
+        .tile-card .tile-icon { font-size: 1.6rem; opacity: 0.9; }
+        .tile-card .tile-title { font-size: 0.98rem; font-weight: 700; margin-top: 6px; }
+        .tile-card .tile-sub { font-size: 0.72rem; opacity: 0.85; margin-top: 2px; }
+
+        .tile-orange { background: var(--tile-orange); }
+        .tile-purple { background: var(--tile-purple); }
+        .tile-teal { background: var(--tile-teal); }
+        .tile-yellow { background: var(--tile-yellow); }
+        .tile-green { background: var(--tile-green); }
+        .tile-indigo { background: var(--tile-indigo); }
+
+        .ios-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 18px;
+            box-shadow: var(--shadow-ios);
+            margin-bottom: 16px;
+        }
+
+        .ios-card-title {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-main);
+        }
+
+        .form-group { margin-bottom: 12px; }
+        .form-group label {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--text-sub);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 11px 13px;
+            background: #f2f2f7;
+            border: 1px solid #e5e5ea;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .form-control:focus { border-color: #007aff; background: #ffffff; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px;
+        }
+
+        .ios-btn {
+            width: 100%;
+            padding: 12px;
+            border-radius: 12px;
+            border: none;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: opacity 0.2s;
+        }
+
+        .ios-btn:active { opacity: 0.8; }
+        .btn-primary { background: #007aff; color: white; }
+        .btn-success { background: #34c759; color: white; }
+        .btn-danger { background: #ff3b30; color: white; }
+        .btn-warning { background: #ff9500; color: white; }
+        .btn-indigo { background: #5856d6; color: white; }
+
+        .btn-sm {
+            padding: 6px 10px;
+            font-size: 0.78rem;
+            border-radius: 8px;
+            width: auto;
+            display: inline-flex;
+        }
+
+        .ios-accordion {
+            background: var(--card-bg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-ios);
+            margin-bottom: 10px;
+            overflow: hidden;
+        }
+
+        .ios-accordion-header {
+            padding: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .student-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #007aff;
+        }
+
+        .student-info-row { display: flex; align-items: center; gap: 12px; }
+
+        .ios-accordion-content {
+            padding: 16px;
+            background: #fafafa;
+            border-top: 1px solid #f2f2f7;
+            display: none;
+        }
+
+        .ios-accordion.open .ios-accordion-content { display: block; }
+
+        .badge-ios {
+            padding: 4px 8px;
+            border-radius: 20px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .badge-red { background: #ffe5e5; color: #ff3b30; }
+        .badge-green { background: #e5ffe9; color: #34c759; }
+        .badge-orange { background: #fff3e0; color: #ff9500; }
+        .badge-blue { background: #e5f2ff; color: #007aff; }
+
+        .table-responsive { overflow-x: auto; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.83rem;
+            margin-top: 8px;
+        }
+
+        th, td {
+            padding: 8px 10px;
+            text-align: right;
+            border-bottom: 1px solid #e5e5ea;
+        }
+
+        th { color: var(--text-sub); font-weight: 600; }
+
+        .medical-tag {
+            background: #fef2f2;
+            color: #dc2626;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            margin: 8px 0;
+            border: 1px solid #fecaca;
+        }
+
+        .notes-tag {
+            background: #f0fdf4;
+            color: #166534;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.78rem;
+            margin: 6px 0;
+            border: 1px solid #bbf7d0;
+        }
+
+        .tab-bar {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(255, 255, 255, 0.94);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 0.5px solid rgba(0,0,0,0.15);
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0 14px 0;
+            z-index: 1000;
+        }
+
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.65rem;
+            color: var(--text-sub);
+            border: none;
+            background: none;
+            cursor: pointer;
+            width: 16%;
+            font-weight: 500;
+        }
+
+        .tab-item i { font-size: 1.2rem; margin-bottom: 3px; }
+        .tab-item.active { color: #007aff; font-weight: 700; }
+
+        /* PRINT STYLES */
+        #printable-area { display: none; }
+
+        @media print {
+            body * { visibility: hidden; }
+            #printable-area, #printable-area * { visibility: visible; }
+            #printable-area {
+                display: block !important;
+                position: absolute;
+                left: 0; top: 0; width: 100%;
+                padding: 10px; background: #fff; color: #000;
+            }
+        }
+
+        .print-card {
+            border: 2px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 650px;
+            margin: auto;
+        }
+
+        .print-header { text-align: center; border-bottom: 2px dashed #ccc; padding-bottom: 12px; margin-bottom: 14px; }
+        .print-header h2 { font-size: 1.4rem; color: #007aff; }
+        .print-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #eee; font-size: 0.88rem; }
+
+        /* ID CARD PRINT FORMAT */
+        .id-card-layout {
+            width: 330px;
+            height: 200px;
+            border: 2px solid #007aff;
+            border-radius: 14px;
+            padding: 12px;
+            margin: auto;
+            background: linear-gradient(135deg, #ffffff, #f0f7ff);
+            position: relative;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .id-card-avatar {
+            width: 75px;
+            height: 75px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #007aff;
+        }
+
+        .id-card-info { flex: 1; font-size: 0.72rem; }
+        .id-card-info h3 { font-size: 0.95rem; color: #007aff; margin-bottom: 4px; }
+
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            z-index: 9998;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: var(--shadow-ios);
+        }
+
+        .btn-whatsapp {
+            background: #25D366;
+            color: white;
+            text-decoration: none;
+        }
+
+        .btn-whatsapp:hover {
+            background: #128C7E;
+        }
+
+        @media (min-width: 768px) {
+            body { padding-bottom: 0; padding-right: 230px; }
+            .tab-bar {
+                top: 0; right: 0; left: auto;
+                width: 230px; height: 100vh;
+                flex-direction: column; justify-content: flex-start;
+                padding-top: 90px; border-top: none;
+                border-left: 0.5px solid rgba(0,0,0,0.15);
+            }
+            .tab-item { width: 100%; flex-direction: row; padding: 14px 20px; gap: 12px; font-size: 0.88rem; justify-content: flex-start; }
+            .tab-item i { margin-bottom: 0; }
+            header { margin-right: -230px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ADMIN LOGIN SCREEN -->
+    <div id="login-screen">
+        <div class="login-card">
+            <i class="fa-solid fa-user-shield main-icon"></i>
+            <h2>تسجيل دخول مدير النظام</h2>
+            <p>أدخل كلمة المرور للوصول إلى لوحة التحكم</p>
+            <form id="admin-login-form">
+                <div class="form-group">
+                    <input type="password" id="admin-pass-input" class="form-control" placeholder="كلمة المرور..." style="text-align:center;" required>
+                </div>
+                <button type="submit" class="ios-btn btn-primary"><i class="fa-solid fa-lock-open"></i> دخول للنظام</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- QUICK PAYMENT MODAL -->
+    <div id="quick-payment-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="ios-card-title" style="justify-content: space-between;">
+                <span><i class="fa-solid fa-hand-holding-dollar" style="color: #34c759;"></i> تسجيل دفعة سريعة</span>
+                <i class="fa-solid fa-xmark" style="cursor: pointer;" onclick="closeQuickPaymentModal()"></i>
+            </div>
+            <form id="quick-payment-form">
+                <div class="form-group">
+                    <label>اختيار الطفل</label>
+                    <select id="quick-pay-student" class="form-control" required>
+                        <!-- Populated Dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>مبلغ الدفعة (د.ع)</label>
+                    <input type="number" id="quick-pay-amount" class="form-control" placeholder="0" required>
+                </div>
+                <div class="form-group">
+                    <label>رقم الوصل / البيان</label>
+                    <input type="text" id="quick-pay-ref" class="form-control" placeholder="مثال: وصل رقم 102">
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 16px;">
+                    <button type="submit" class="ios-btn btn-success"><i class="fa-solid fa-check"></i> تأكيد وإضافة</button>
+                    <button type="button" class="ios-btn btn-danger" onclick="closeQuickPaymentModal()">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN HEADER -->
+    <header>
+        <h1><i class="fa-solid fa-baby-carriage" style="color: #007aff;"></i> إدارة الروضة والحضانة</h1>
+        <div class="header-actions">
+            <button class="header-btn btn-accent" onclick="openQuickPaymentModal()" title="تسجيل دفعة سريعة"><i class="fa-solid fa-plus"></i></button>
+            <button class="header-btn" onclick="exportData()" title="تصدير نسخة احتياطية"><i class="fa-solid fa-arrow-down-to-line"></i></button>
+            <button class="header-btn" onclick="lockSystem()" title="قفل الشاشة"><i class="fa-solid fa-lock"></i></button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- DASHBOARD VIEW -->
+        <section id="dashboard-view" class="view-section active">
+            <div class="stats-row">
+                <div class="stat-box green">
+                    <span class="stat-title">المقبوضات</span>
+                    <span class="stat-value" id="stat-income">0 د.ع</span>
+                </div>
+                <div class="stat-box red">
+                    <span class="stat-title">المصاريف</span>
+                    <span class="stat-value" id="stat-expenses">0 د.ع</span>
+                </div>
+                <div class="stat-box blue">
+                    <span class="stat-title">صافي الأرباح</span>
+                    <span class="stat-value" id="stat-net">0 د.ع</span>
+                </div>
+                <div class="stat-box orange">
+                    <span class="stat-title">إجمالي الخصومات</span>
+                    <span class="stat-value" id="stat-discounts">0 د.ع</span>
+                </div>
+            </div>
+
+            <div class="grid-tiles">
+                <div class="tile-card tile-orange" onclick="switchTab('students-view', 'tab-students')">
+                    <div class="tile-icon"><i class="fa-solid fa-child"></i></div>
+                    <div>
+                        <div class="tile-title">الأطفال والأقساط</div>
+                        <div class="tile-sub">الملفات والحسابات</div>
+                    </div>
+                </div>
+
+                <div class="tile-card tile-green" onclick="switchTab('attendance-view', 'tab-attendance')">
+                    <div class="tile-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                    <div>
+                        <div class="tile-title">الحضور والغياب</div>
+                        <div class="tile-sub">السجل اليومي والواتساب</div>
+                    </div>
+                </div>
+
+                <div class="tile-card tile-teal" onclick="switchTab('transport-view', 'tab-transport')">
+                    <div class="tile-icon"><i class="fa-solid fa-bus"></i></div>
+                    <div>
+                        <div class="tile-title">خطوط النقل</div>
+                        <div class="tile-sub">الباصات والسائقين</div>
+                    </div>
+                </div>
+
+                <div class="tile-card tile-purple" onclick="switchTab('reports-view', 'tab-reports')">
+                    <div class="tile-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <div>
+                        <div class="tile-title">الحسابات والتقارير</div>
+                        <div class="tile-sub">تحليلات وإحصاءات الشاملة</div>
+                    </div>
+                </div>
+
+                <div class="tile-card tile-yellow" onclick="switchTab('events-view', 'tab-events')">
+                    <div class="tile-icon"><i class="fa-solid fa-cake-candles"></i></div>
+                    <div>
+                        <div class="tile-title">أعياد الميلاد والفعاليات</div>
+                        <div class="tile-sub">مناسبات القادمة</div>
+                    </div>
+                </div>
+
+                <div class="tile-card tile-indigo" onclick="switchTab('staff-view', 'tab-staff')">
+                    <div class="tile-icon"><i class="fa-solid fa-user-nurse"></i></div>
+                    <div>
+                        <div class="tile-title">الكادر والمعلمات</div>
+                        <div class="tile-sub">الرواتب والسلف</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ios-card">
+                <div class="ios-card-title"><i class="fa-solid fa-clock" style="color: #ff9500;"></i> أقساط حلّ أو اقترب موعدها</div>
+                <div id="dashboard-due-students" class="table-responsive"></div>
+            </div>
+        </section>
+
+        <!-- STUDENTS VIEW -->
+        <section id="students-view" class="view-section">
+            <div class="ios-card">
+                <div class="ios-card-title"><i class="fa-solid fa-user-plus" style="color: #007aff;"></i> تسجيل طفل جديد</div>
+                <form id="add-student-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>اسم الطفل الثلاثي</label>
+                            <input type="text" id="st-name" class="form-control" placeholder="اسم الطفل..." required>
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ الميلاد</label>
+                            <input type="date" id="st-dob" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>المرحلة</label>
+                            <select id="st-stage" class="form-control" required>
+                                <option value="حضانة">حضانة</option>
+                                <option value="روضة">روضة</option>
+                                <option value="تمهيدي">تمهيدي</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>القاعة / الصف</label>
+                            <input type="text" id="st-class" class="form-control" placeholder="مثال: قاعة الأمل" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>هاتف ولي الأمر (واتساب)</label>
+                            <input type="text" id="st-phone" class="form-control" placeholder="07XXXXXXXXX" required>
+                        </div>
+                        <div class="form-group">
+                            <label>هاتف الطوارئ البديل</label>
+                            <input type="text" id="st-emergency-phone" class="form-control" placeholder="07XXXXXXXXX">
+                        </div>
+                        <div class="form-group">
+                            <label>خط النقل (الباص)</label>
+                            <select id="st-bus-route" class="form-control">
+                                <option value="بدون نقل">بدون نقل (خاص)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>صورة الطفل الشخصية</label>
+                            <input type="file" id="st-photo" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>فصيلة الدم</label>
+                            <select id="st-blood" class="form-control">
+                                <option value="غير محدد">غير محدد</option>
+                                <option value="A+">A+</option><option value="A-">A-</option>
+                                <option value="B+">B+</option><option value="B-">B-</option>
+                                <option value="O+">O+</option><option value="O-">O-</option>
+                                <option value="AB+">AB+</option><option value="AB-">AB-</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>حساسية أو ملاحظة صحية</label>
+                            <input type="text" id="st-allergy" class="form-control" placeholder="مثال: حساسية حليب...">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>القسط الكلي السنوي</label>
+                            <input type="number" id="st-total-fee" class="form-control" placeholder="0 د.ع" required>
+                        </div>
+                        <div class="form-group">
+                            <label>خصم إخوة / حالة خاصة</label>
+                            <input type="number" id="st-discount-amount" class="form-control" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>رسوم النقل</label>
+                            <input type="number" id="st-bus-fee" class="form-control" value="0">
+                        </div>
+                        <div class="form-group">
+                            <label>تاريخ استحقاق القسط القادم</label>
+                            <input type="date" id="st-due-date" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="ios-btn btn-primary" style="margin-top: 8px;"><i class="fa-solid fa-check"></i> حفظ بيانات الطفل الشاملة</button>
+                </form>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+                <input type="text" id="st-search" class="form-control" placeholder="بحث باسم الطفل، القاعة، أو المرحلة..." oninput="renderStudents()">
+            </div>
+
+            <div id="students-accordion-list"></div>
+        </section>
+
+        <!-- ATTENDANCE VIEW -->
+        <section id="attendance-view" class="view-section">
+            <div class="ios-card">
+                <div class="ios-card-title"><i class="fa-solid fa-calendar-check" style="color: #34c759;"></i> سجل الحضور اليومي (<span id="attendance-date-lbl"></span>)</div>
+                
+                <div class="form-row" style="margin-bottom: 12px;">
+                    <div class="form-group">
+                        <label>تحديد التاريخ</label>
+                        <input type="date" id="att-date-picker" class="form-control" onchange="renderAttendance()">
+                    </div>
+                    <div class="form-group">
+                        <label>تصفية الحالة</label>
+                        <select id="att-filter-status" class="form-control" onchange="renderAttendance()">
+                            <option value="all">عرض الكل</option>
+                            <option value="present">الحاضرون فقط</option>
+                            <option value="absent">الغائبون فقط</option>
+                            <option value="none">غير محدد</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <input type="text" id="att-search" class="form-control" placeholder="بحث في سجل الحضور والغياب..." oninput="renderAttendance()">
+                </div>
+
+                <div id="attendance-list-container"></div>
+            </div>
+        </section>
+
+        <!-- TRANSPORTATION VIEW -->
+        <section id="transport-view" class="view-section">
+            <div class="ios-card">
+                <div class="ios-card-title"><i class="fa-solid fa-bus" style="color: #5ac8fa;"></i> إضافة خط نقل (باص) جديد</div>
+                <form id="add-bus-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>اسم المنطقة / الخط</label>
+                            <input type="text" id="bus-name" class="form-control" placeholder="مثال: خط حي الجامعة" required>
+                        </div>
+                        <div class="form-group">
+                            <label>اسم السائق</label>
+                            <input type="text" id="bus-driver" class="form-control" placeholder="اسم السائق..." required>
+                        </div>
+                        <div class="form-group">
+                            <label>رقم هاتف السائق</label>
+                            <input type="text" id="bus-phone" class="form-control" placeholder="07XXXXXXXXX" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="ios-btn btn-primary" style="background:#5ac8fa;"><i class="fa-solid fa-plus"></i> إضافة الخط</button>
+                </form>
+            </div>
+
+            <div id="bus-routes-list"></div>
+        </section>
+
+        <!-- ACCOUNTING & REPORTS VIEW -->
+        <section id="reports-view" class="view-section">
+            <div class="ios-card">
+                <div class="ios-card-title"><i class="fa-solid fa-chart-pie" style="color: #af52de;"></i> التقرير المالي والتحليلي الشامل</div>
+                <div id="reports-summary-content"></div>
+                <button class="ios-btn btn-indigo" onclick="printFinancialReportPDF()" style="margin-top:14px;"><i class="fa-solid fa-print"></i> طباعة التقرير المالي الكامل PDF</button>
+            </div>
+
+            <div class="ios-card">
+                <div class="ios-card-title"><i class="fa-solid fa-minus-circle" style="color: #ff3b30;"></i> تسجيل مصروف تشغيلي</div>
+                <form id="add-expense-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الفئة</label>
+                            <select id="exp-category" class="form-control" required>
+                                <option value="قرطاسية وأدوات تعليمية">قرطاسية وأدوات تعليمية</option>
+                                <option value="صيانة ونظافة">صيانة ونظافة</option>
+                                <option value="وقود وصيانة خطوط">وقود / صيانة خطوط</option>
+                                <option value="ضيافة وفعاليات">ضيافة وفعاليات</option>
+                                <option value="مصاريف أخرى">مصاريف أخرى</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>المبلغ (د.ع)</label>
+                            <input type="number" id="exp-amount" class="form-control" placeholder="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>التاريخ</label>
+                            <input type="date" id="exp-date" class="form-control" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>تفاصيل المصروف</label>
+                        <input type="text" id="exp-notes" class="form-control" placeholder="توضيح البيان..." required>
+                    </div>
+                    <button type="submit" class="ios-btn btn-danger"><i class="fa-solid fa-plus"></i> إضافة المصروف</button>
+                </form>
+            </div>
+
+            <div class="ios-card">
+                <div class="ios-card-title"><i class="fa-solid fa-list"></i> سجل المصاريف التشغيلية</div>
+                <div class="table-responsive">
+                    <table>
+                        <thead><tr><th>التاريخ</th><th>الفئة</th><th>البيان</th><th>المبلغ</th></tr></thead>
+                        <tbody id="expenses-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- EVENTS & BIRTHDAYS VIEW -->
+        <section id="events-view" class="view-section">
+            <div class="ios-card">
+                <div class="ios-card-title"><i class="fa-solid fa-cake-candles" style="color: #ffcc00;"></i> أعياد الميلاد القادمة (خلال الـ 7 أيام القادمة)</div>
+                <div id="upcoming-birthdays-list"></div>
+            </div>
+        </section>
+
+        <!-- STAFF VIEW -->
+        <section id="staff-view" class="view-section">
+            <div class="ios-card">
+                <div class="ios-card-title"><i class="fa-solid fa-user-gear" style="color: #5856d6;"></i> إضافة معلمة / موظف</div>
+                <form id="add-staff-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>الاسم الكامل</label>
+                            <input type="text" id="staff-name" class="form-control" placeholder="الاسم..." required>
+                        </div>
+                        <div class="form-group">
+                            <label>المسمى الوظيفي</label>
+                            <input type="text" id="staff-role" class="form-control" placeholder="معلمة، مربية، سائق..." required>
+                        </div>
+                        <div class="form-group">
+                            <label>الراتب الاسمي الشهري</label>
+                            <input type="number" id="staff-salary" class="form-control" placeholder="0" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="ios-btn btn-indigo"><i class="fa-solid fa-check"></i> حفظ بيانات الموظف</button>
+                </form>
+            </div>
+
+            <div id="staff-accordion-list"></div>
+        </section>
+
+    </div>
+
+    <!-- PRINTABLE TEMPLATE AREA -->
+    <div id="printable-area">
+        <div id="print-content"></div>
+    </div>
+
+    <!-- TAB NAVIGATION BAR -->
+    <nav class="tab-bar">
+        <button id="tab-dashboard" class="tab-item active" onclick="switchTab('dashboard-view', 'tab-dashboard')">
+            <i class="fa-solid fa-house"></i><span>الرئيسية</span>
+        </button>
+        <button id="tab-students" class="tab-item" onclick="switchTab('students-view', 'tab-students')">
+            <i class="fa-solid fa-child"></i><span>الأطفال</span>
+        </button>
+        <button id="tab-attendance" class="tab-item" onclick="switchTab('attendance-view', 'tab-attendance')">
+            <i class="fa-solid fa-calendar-check"></i><span>الحضور</span>
+        </button>
+        <button id="tab-transport" class="tab-item" onclick="switchTab('transport-view', 'tab-transport')">
+            <i class="fa-solid fa-bus"></i><span>النقل</span>
+        </button>
+        <button id="tab-reports" class="tab-item" onclick="switchTab('reports-view', 'tab-reports')">
+            <i class="fa-solid fa-chart-pie"></i><span>التقارير</span>
+        </button>
+        <button id="tab-staff" class="tab-item" onclick="switchTab('staff-view', 'tab-staff')">
+            <i class="fa-solid fa-users"></i><span>الكادر</span>
+        </button>
+    </nav>
+
+    <script>
+        let adminPassword = "19001800"; // تم تحديث كلمة المرور
+        let isLogged = false;
+
+        let appData = {
+            students: [],
+            expenses: [],
+            staff: [],
+            busRoutes: [],
+            attendance: {}
+        };
+
+        function loadData() {
+            const saved = localStorage.getItem('kindergarten_app_data');
+            if (saved) {
+                appData = JSON.parse(saved);
+                if (!appData.attendance) appData.attendance = {};
+                if (!appData.busRoutes) appData.busRoutes = [];
+            } else {
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem('kindergarten_app_data', JSON.stringify(appData));
+            refreshUI();
+        }
+
+        // Admin Login Handle
+        document.getElementById('admin-login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const input = document.getElementById('admin-pass-input').value;
+            if (input === adminPassword) {
+                isLogged = true;
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('admin-pass-input').value = '';
+            } else {
+                alert("كلمة المرور غير صحيحة!");
+            }
+        });
+
+        function lockSystem() {
+            isLogged = false;
+            document.getElementById('login-screen').style.display = 'flex';
+        }
+
+        function switchTab(viewId, tabId) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(viewId).classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+            refreshUI();
+        }
+
+        // QUICK PAYMENT MODAL LOGIC
+        function openQuickPaymentModal() {
+            const select = document.getElementById('quick-pay-student');
+            select.innerHTML = '<option value="">اختر الطفل...</option>';
+            appData.students.forEach(s => {
+                select.innerHTML += `<option value="${s.id}">${s.name} (${s.stage} - ${s.class})</option>`;
+            });
+            document.getElementById('quick-payment-modal').style.display = 'flex';
+        }
+
+        function closeQuickPaymentModal() {
+            document.getElementById('quick-payment-modal').style.display = 'none';
+            document.getElementById('quick-payment-form').reset();
+        }
+
+        document.getElementById('quick-payment-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const studentId = Number(document.getElementById('quick-pay-student').value);
+            const amount = Number(document.getElementById('quick-pay-amount').value);
+            const ref = document.getElementById('quick-pay-ref').value;
+
+            if (studentId && amount > 0) {
+                const student = appData.students.find(s => s.id === studentId);
+                if (student) {
+                    student.payments.push({
+                        id: Date.now(),
+                        amount: amount,
+                        date: new Date().toISOString().split('T')[0],
+                        ref: ref || 'بدون رقم'
+                    });
+                    saveData();
+                    closeQuickPaymentModal();
+                    alert(`تم تسجيل مبلغ ${amount.toLocaleString()} د.ع للطفل ${student.name} بنجاح`);
+                }
+            }
+        });
+
+        // Add Student
+        document.getElementById('add-student-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const photoInput = document.getElementById('st-photo');
+
+            const saveStudent = (imgData) => {
+                const student = {
+                    id: Date.now(),
+                    name: document.getElementById('st-name').value,
+                    dob: document.getElementById('st-dob').value,
+                    stage: document.getElementById('st-stage').value,
+                    class: document.getElementById('st-class').value,
+                    phone: document.getElementById('st-phone').value,
+                    emergencyPhone: document.getElementById('st-emergency-phone').value || '',
+                    busRouteId: document.getElementById('st-bus-route').value,
+                    blood: document.getElementById('st-blood').value,
+                    allergy: document.getElementById('st-allergy').value || 'لا يوجد',
+                    photo: imgData || '',
+                    totalFee: Number(document.getElementById('st-total-fee').value),
+                    discountAmount: Number(document.getElementById('st-discount-amount').value),
+                    busFee: Number(document.getElementById('st-bus-fee').value),
+                    dueDate: document.getElementById('st-due-date').value,
+                    notes: [],
+                    payments: []
+                };
+                appData.students.push(student);
+                saveData();
+                e.target.reset();
+            };
+
+            if (photoInput.files && photoInput.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (evt) => saveStudent(evt.target.result);
+                reader.readAsDataURL(photoInput.files[0]);
+            } else {
+                saveStudent('');
+            }
+        });
+
+        // Add Bus Route
+        document.getElementById('add-bus-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            appData.busRoutes.push({
+                id: Date.now(),
+                name: document.getElementById('bus-name').value,
+                driver: document.getElementById('bus-driver').value,
+                phone: document.getElementById('bus-phone').value
+            });
+            saveData();
+            e.target.reset();
+        });
+
+        // Add Student Note
+        function addStudentNote(studentId) {
+            const text = prompt("أدخل ملاحظة أو توجيه ولي الأمر اليومي:");
+            if (text) {
+                const student = appData.students.find(s => s.id === studentId);
+                student.notes.push({
+                    id: Date.now(),
+                    date: new Date().toISOString().split('T')[0],
+                    text: text
+                });
+                saveData();
+            }
+        }
+
+        // Add Payment
+        function addPayment(studentId) {
+            const amount = prompt("أدخل مبلغ الدفعة (د.ع):");
+            const ref = prompt("رقم الوصل / البيان:");
+            if (amount && !isNaN(amount) && Number(amount) > 0) {
+                const student = appData.students.find(s => s.id === studentId);
+                student.payments.push({
+                    id: Date.now(),
+                    amount: Number(amount),
+                    date: new Date().toISOString().split('T')[0],
+                    ref: ref || 'بدون رقم'
+                });
+                saveData();
+            }
+        }
+
+        // Print ID Card
+        function printIDCard(studentId) {
+            const student = appData.students.find(s => s.id === studentId);
+            const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/2922/2922510.png";
+
+            document.getElementById('print-content').innerHTML = `
+                <div class="id-card-layout">
+                    <img src="${student.photo || defaultAvatar}" class="id-card-avatar" alt="صورة">
+                    <div class="id-card-info">
+                        <h3>${student.name}</h3>
+                        <p><strong>المرحلة:</strong> ${student.stage} - ${student.class}</p>
+                        <p><strong>فصيلة الدم:</strong> ${student.blood}</p>
+                        <p><strong>هاتف ولي الأمر:</strong> ${student.phone}</p>
+                        <p><strong>الطوارئ:</strong> ${student.emergencyPhone || 'غير مدخل'}</p>
+                    </div>
+                    <div id="qrcode-holder" style="width:50px; height:50px;"></div>
+                </div>
+            `;
+
+            new QRCode(document.getElementById("qrcode-holder"), {
+                text: `STU-ID:${student.id}|NAME:${student.name}|PHONE:${student.phone}`,
+                width: 50, height: 50
+            });
+
+            setTimeout(() => { window.print(); }, 300);
+        }
+
+        // Print Account Statement
+        function printAccountStatement(studentId) {
+            const student = appData.students.find(s => s.id === studentId);
+            const totalRequired = (student.totalFee + student.busFee) - student.discountAmount;
+            const paidSum = student.payments.reduce((acc, p) => acc + p.amount, 0);
+
+            document.getElementById('print-content').innerHTML = `
+                <div class="print-card">
+                    <div class="print-header">
+                        <h2>روضة وحضانة الأجيال الأهلية</h2>
+                        <p>كشف حساب طفل تفصيلي</p>
+                    </div>
+                    <div class="print-row"><span>اسم الطفل:</span> <strong>${student.name}</strong></div>
+                    <div class="print-row"><span>المرحلة والقاعة:</span> <span>${student.stage} - ${student.class}</span></div>
+                    <div class="print-row"><span>تاريخ الميلاد:</span> <span>${student.dob || 'غير مدخل'}</span></div>
+                    <div class="print-row"><span>هاتف ولي الأمر:</span> <span>${student.phone}</span></div>
+                    <hr style="margin:10px 0;">
+                    <div class="print-row"><span>القسط الكلي السنوي:</span> <span>${student.totalFee.toLocaleString()} د.ع</span></div>
+                    <div class="print-row"><span>رسوم النقل (الباص):</span> <span>${student.busFee.toLocaleString()} د.ع</span></div>
+                    <div class="print-row"><span>الخصم الممنوح:</span> <span>${student.discountAmount.toLocaleString()} د.ع</span></div>
+                    <div class="print-row"><span>المبلغ الصافي المطلوب:</span> <strong>${totalRequired.toLocaleString()} د.ع</strong></div>
+                    <div class="print-row"><span>مجموع المبالغ الواصلة:</span> <strong style="color:green;">${paidSum.toLocaleString()} د.ع</strong></div>
+                    <div class="print-row"><span>المتبقي المترتب:</span> <strong style="color:red;">${(totalRequired - paidSum).toLocaleString()} د.ع</strong></div>
+                    
+                    <h4 style="margin-top:15px; margin-bottom:5px;">سجل الدفعات المستلمة:</h4>
+                    <table style="border:1px solid #ccc; text-align:right;">
+                        <thead><tr><th>التاريخ</th><th>المبلغ</th><th>رقم الوصل</th></tr></thead>
+                        <tbody>
+                            ${student.payments.map(p => `<tr><td>${p.date}</td><td>${p.amount.toLocaleString()} د.ع</td><td>${p.ref}</td></tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            window.print();
+        }
+
+        // Print Full Financial Report PDF
+        function printFinancialReportPDF() {
+            let totalIncome = 0;
+            let totalDiscounts = 0;
+            appData.students.forEach(s => {
+                totalIncome += s.payments.reduce((acc, p) => acc + p.amount, 0);
+                totalDiscounts += s.discountAmount;
+            });
+
+            const totalExpenses = appData.expenses.reduce((acc, e) => acc + e.amount, 0);
+            const totalStaffAdvances = appData.staff.reduce((acc, st) => acc + st.advances.reduce((a, b) => a + b.amount, 0), 0);
+            const grandExpenses = totalExpenses + totalStaffAdvances;
+
+            document.getElementById('print-content').innerHTML = `
+                <div class="print-card">
+                    <div class="print-header">
+                        <h2>التقرير المالي والحسابي الشامل</h2>
+                        <p>تاريخ التقرير: ${new Date().toISOString().split('T')[0]}</p>
+                    </div>
+                    <div class="print-row"><span>إجمالي المقبوضات الفعلية:</span> <strong style="color:green;">${totalIncome.toLocaleString()} د.ع</strong></div>
+                    <div class="print-row"><span>إجمالي الخصومات والتخفيضات:</span> <strong style="color:orange;">${totalDiscounts.toLocaleString()} د.ع</strong></div>
+                    <div class="print-row"><span>إجمالي المصاريف التشغيلية:</span> <span>${totalExpenses.toLocaleString()} د.ع</span></div>
+                    <div class="print-row"><span>إجمالي سلف الموظفين:</span> <span>${totalStaffAdvances.toLocaleString()} د.ع</span></div>
+                    <div class="print-row"><span>مجموع المصاريف الكلية:</span> <strong style="color:red;">${grandExpenses.toLocaleString()} د.ع</strong></div>
+                    <hr style="margin:10px 0;">
+                    <div class="print-row"><span>صافي الأرباح النهائبة:</span> <strong style="font-size:1.2rem; color:#007aff;">${(totalIncome - grandExpenses).toLocaleString()} د.ع</strong></div>
+                </div>
+            `;
+            window.print();
+        }
+
+        // Render Students
+        function renderStudents() {
+            const container = document.getElementById('students-accordion-list');
+            const searchInput = document.getElementById('st-search');
+            const search = searchInput ? searchInput.value.toLowerCase() : '';
+            container.innerHTML = '';
+
+            appData.students.filter(s => 
+                s.name.toLowerCase().includes(search) || 
+                s.class.toLowerCase().includes(search) ||
+                s.stage.toLowerCase().includes(search)
+            ).forEach(student => {
+                const totalRequired = (student.totalFee + student.busFee) - student.discountAmount;
+                const paidSum = student.payments.reduce((acc, p) => acc + p.amount, 0);
+                const remaining = totalRequired - paidSum;
+                const isLate = remaining > 0;
+                
+                const defaultAvatar = "https://cdn-icons-png.flaticon.com/512/2922/2922510.png";
+
+                const item = document.createElement('div');
+                item.className = 'ios-accordion';
+                item.innerHTML = `
+                    <div class="ios-accordion-header" onclick="this.parentElement.classList.toggle('open')">
+                        <div class="student-info-row">
+                            <img src="${student.photo || defaultAvatar}" class="student-avatar" alt="صورة">
+                            <div>
+                                <strong>${student.name}</strong> 
+                                <div style="font-size: 0.78rem; color: #007aff; font-weight:600;">[${student.stage}] - ${student.class}</div>
+                                <div style="font-size: 0.75rem; color: var(--text-sub); margin-top:2px;">
+                                    الواصل: ${paidSum.toLocaleString()} | المتبقي: ${remaining.toLocaleString()}
+                                </div>
+                            </div>
+                        </div>
+                        <span class="badge-ios ${isLate ? 'badge-red' : 'badge-green'}">
+                            ${isLate ? 'متبقي' : 'مكتمل'}
+                        </span>
+                    </div>
+                    <div class="ios-accordion-content">
+                        <div class="medical-tag">
+                            <i class="fa-solid fa-notes-medical"></i> <strong>السجل الطبي:</strong> فصيلة الدم (${student.blood || 'غير محدد'}) | <strong>الملاحظات:</strong> ${student.allergy || 'لا يوجد'}<br>
+                            <i class="fa-solid fa-phone"></i> <strong>طوارئ بديل:</strong> ${student.emergencyPhone || 'غير مدخل'}
+                        </div>
+
+                        ${student.notes && student.notes.length > 0 ? `
+                            <div class="notes-tag">
+                                <i class="fa-solid fa-comment-dots"></i> <strong>آخر توجيه من ولي الأمر:</strong> ${student.notes[student.notes.length - 1].text} (${student.notes[student.notes.length - 1].date})
+                            </div>
+                        ` : ''}
+
+                        <p style="font-size:0.83rem; margin-top:6px;">
+                            <strong>استحقاق القسط:</strong> ${student.dueDate || 'غير محدد'} | <strong>الميلاد:</strong> ${student.dob || 'غير مدخل'}
+                        </p>
+                        
+                        <div style="margin: 12px 0; display:flex; gap:6px; flex-wrap:wrap;">
+                            <button class="ios-btn btn-success btn-sm" onclick="addPayment(${student.id})"><i class="fa-solid fa-plus"></i> إضافة دفعة</button>
+                            <button class="ios-btn btn-primary btn-sm" onclick="printAccountStatement(${student.id})"><i class="fa-solid fa-file-invoice"></i> كشف حساب</button>
+                            <button class="ios-btn btn-indigo btn-sm" onclick="printIDCard(${student.id})"><i class="fa-solid fa-id-card"></i> باج (ID)</button>
+                            <button class="ios-btn btn-warning btn-sm" onclick="addStudentNote(${student.id})"><i class="fa-solid fa-note-sticky"></i> إضافة ملاحظة</button>
+                        </div>
+
+                        <h4 style="font-size:0.8rem; color: var(--text-sub); margin-top:10px;">سجل الدفعات المستلمة:</h4>
+                        <table>
+                            <thead><tr><th>التاريخ</th><th>المبلغ</th><th>الوصل</th></tr></thead>
+                            <tbody>
+                                ${student.payments.map(p => `<tr><td>${p.date}</td><td>${p.amount.toLocaleString()}</td><td>${p.ref}</td></tr>`).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+
+            // Populate Bus Select
+            const busSelect = document.getElementById('st-bus-route');
+            if (busSelect) {
+                busSelect.innerHTML = '<option value="بدون نقل">بدون نقل (خاص)</option>';
+                appData.busRoutes.forEach(b => {
+                    busSelect.innerHTML += `<option value="${b.id}">${b.name} (${b.driver})</option>`;
+                });
+            }
+        }
+
+        // ATTENDANCE MANAGEMENT
+        function markAttendance(dateStr, studentId, status) {
+            if (!appData.attendance[dateStr]) appData.attendance[dateStr] = {};
+            appData.attendance[dateStr][studentId] = status;
+            saveData();
+        }
+
+        function sendWhatsAppAttendanceNotice(studentId, status, selectedDate) {
+            const student = appData.students.find(s => s.id === studentId);
+            if (!student || !student.phone) {
+                alert("رقم هاتف ولي الأمر غير متوفر!");
+                return;
+            }
+
+            let rawPhone = student.phone.replace(/[^0-9]/g, '');
+            if (rawPhone.startsWith('0')) {
+                rawPhone = '964' + rawPhone.substring(1);
+            }
+
+            const statusText = status === 'present' ? 'حاضر ✅' : 'غائب ❌';
+            const message = `تحية طيبة، نود إعلامكم بأن الطفل (${student.name}) مسجل لدينا كـ (${statusText}) بتاريخ ${selectedDate}. نتمنى له دوام الصحة والعافية.`;
+
+            const whatsappUrl = `https://wa.me/${rawPhone}?text=${encodeURIComponent(message)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        function renderAttendance() {
+            const datePicker = document.getElementById('att-date-picker');
+            const selectedDate = datePicker.value || new Date().toISOString().split('T')[0];
+            document.getElementById('attendance-date-lbl').innerText = selectedDate;
+
+            const container = document.getElementById('attendance-list-container');
+            container.innerHTML = '';
+
+            const dayRecord = appData.attendance[selectedDate] || {};
+            const searchVal = (document.getElementById('att-search')?.value || '').toLowerCase();
+            const filterStatus = document.getElementById('att-filter-status')?.value || 'all';
+
+            if (appData.students.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin:15px 0;">لا يوجد أطفال مسجلين بعد.</p>';
+                return;
+            }
+
+            const filteredStudents = appData.students.filter(st => {
+                const matchesSearch = st.name.toLowerCase().includes(searchVal) || 
+                                     st.class.toLowerCase().includes(searchVal) ||
+                                     st.stage.toLowerCase().includes(searchVal);
+                
+                const status = dayRecord[st.id] || 'none';
+                let matchesStatus = true;
+                if (filterStatus === 'present') matchesStatus = (status === 'present');
+                else if (filterStatus === 'absent') matchesStatus = (status === 'absent');
+                else if (filterStatus === 'none') matchesStatus = (status === 'none');
+
+                return matchesSearch && matchesStatus;
+            });
+
+            if (filteredStudents.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-sub); margin:15px 0;">لا توجد نتائج مطابقة للبحث أو التصفية.</p>';
+                return;
+            }
+
+            filteredStudents.forEach(st => {
+                const status = dayRecord[st.id] || 'none';
+
+                const div = document.createElement('div');
+                div.style.cssText = "display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #eee; flex-wrap:wrap; gap:8px;";
+                div.innerHTML = `
+                    <div>
+                        <strong>${st.name}</strong> <span style="font-size:0.75rem; color:#007aff;">[${st.stage} - ${st.class}]</span>
+                    </div>
+                    <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                        <button class="ios-btn ${status === 'present' ? 'btn-success' : ''} btn-sm" style="${status !== 'present' ? 'background:#e5e5ea; color:#333;' : ''}" onclick="markAttendance('${selectedDate}', ${st.id}, 'present')">حاضر</button>
+                        <button class="ios-btn ${status === 'absent' ? 'btn-danger' : ''} btn-sm" style="${status !== 'absent' ? 'background:#e5e5ea; color:#333;' : ''}" onclick="markAttendance('${selectedDate}', ${st.id}, 'absent')">غائب</button>
+                        ${status !== 'none' ? `
+                            <button class="ios-btn btn-whatsapp btn-sm" onclick="sendWhatsAppAttendanceNotice(${st.id}, '${status}', '${selectedDate}')">
+                                <i class="fa-brands fa-whatsapp"></i> إشعار
+                            </button>
+                        ` : ''}
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // RENDER BUS ROUTES
+        function renderBusRoutes() {
+            const container = document.getElementById('bus-routes-list');
+            container.innerHTML = '';
+
+            appData.busRoutes.forEach(route => {
+                const assignedStudents = appData.students.filter(s => String(s.busRouteId) === String(route.id));
+
+                const div = document.createElement('div');
+                div.className = 'ios-card';
+                div.innerHTML = `
+                    <div class="ios-card-title"><i class="fa-solid fa-bus" style="color:#5ac8fa;"></i> ${route.name}</div>
+                    <p style="font-size:0.85rem; color:var(--text-sub);"><strong>السائق:</strong> ${route.driver} | <strong>الهاتف:</strong> ${route.phone}</p>
+                    <h4 style="font-size:0.8rem; margin-top:10px;">الأطفال المسجلين في الخط (${assignedStudents.length}):</h4>
+                    <ul style="font-size:0.83rem; padding-right:18px; margin-top:4px;">
+                        ${assignedStudents.map(s => `<li>${s.name} [${s.class}] - هاتف: ${s.phone}</li>`).join('')}
+                    </ul>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // RENDER UPCOMING BIRTHDAYS
+        function renderBirthdays() {
+            const container = document.getElementById('upcoming-birthdays-list');
+            container.innerHTML = '';
+
+            const today = new Date();
+            const upcoming = appData.students.filter(st => {
+                if (!st.dob) return false;
+                const dob = new Date(st.dob);
+                const nextBday = new Date(today.getFullYear(), dob.getMonth(), dob.getDate());
+                if (nextBday < today) nextBday.setFullYear(today.getFullYear() + 1);
+                
+                const diffTime = nextBday - today;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                return diffDays >= 0 && diffDays <= 7;
+            });
+
+            if (upcoming.length === 0) {
+                container.innerHTML = '<p style="font-size:0.85rem; color:var(--text-sub);">لا توجد أعياد ميلاد قادمة خلال الـ 7 أيام القادمة.</p>';
+                return;
+            }
+
+            upcoming.forEach(s => {
+                container.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #eee;">
+                        <div>
+                            <strong>🎂 ${s.name}</strong>
+                            <div style="font-size:0.78rem; color:var(--text-sub);">[${s.stage}] - ${s.class}</div>
+                        </div>
+                        <span class="badge-ios badge-orange">تاريخ الميلاد: ${s.dob}</span>
+                    </div>
+                `;
+            });
+        }
+
+        // EXPENSES & STAFF
+        document.getElementById('add-expense-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            appData.expenses.push({
+                id: Date.now(),
+                category: document.getElementById('exp-category').value,
+                amount: Number(document.getElementById('exp-amount').value),
+                date: document.getElementById('exp-date').value,
+                notes: document.getElementById('exp-notes').value
+            });
+            saveData();
+            e.target.reset();
+        });
+
+        function renderExpenses() {
+            const body = document.getElementById('expenses-table-body');
+            body.innerHTML = appData.expenses.map(e => `
+                <tr>
+                    <td>${e.date}</td>
+                    <td>${e.category}</td>
+                    <td>${e.notes}</td>
+                    <td style="color: var(--tile-red); font-weight:700;">${e.amount.toLocaleString()} د.ع</td>
+                </tr>
+            `).join('');
+        }
+
+        document.getElementById('add-staff-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            appData.staff.push({
+                id: Date.now(),
+                name: document.getElementById('staff-name').value,
+                role: document.getElementById('staff-role').value,
+                salary: Number(document.getElementById('staff-salary').value),
+                advances: []
+            });
+            saveData();
+            e.target.reset();
+        });
+
+        function addAdvance(staffId) {
+            const amount = prompt("أدخل مبلغ السلفة (د.ع):");
+            if (amount && !isNaN(amount) && Number(amount) > 0) {
+                const member = appData.staff.find(s => s.id === staffId);
+                member.advances.push({
+                    id: Date.now(),
+                    amount: Number(amount),
+                    date: new Date().toISOString().split('T')[0]
+                });
+                saveData();
+            }
+        }
+
+        function renderStaff() {
+            const container = document.getElementById('staff-accordion-list');
+            container.innerHTML = '';
+
+            appData.staff.forEach(member => {
+                const totalAdvances = member.advances.reduce((acc, a) => acc + a.amount, 0);
+                const netSalary = member.salary - totalAdvances;
+
+                const item = document.createElement('div');
+                item.className = 'ios-accordion';
+                item.innerHTML = `
+                    <div class="ios-accordion-header" onclick="this.parentElement.classList.toggle('open')">
+                        <div>
+                            <strong>${member.name}</strong> (${member.role})
+                            <div style="font-size: 0.78rem; color: var(--text-sub); margin-top:2px;">
+                                الراتب: ${member.salary.toLocaleString()} | السلف: ${totalAdvances.toLocaleString()}
+                            </div>
+                        </div>
+                        <span class="badge-ios badge-green">الصافي: ${netSalary.toLocaleString()}</span>
+                    </div>
+                    <div class="ios-accordion-content">
+                        <button class="ios-btn btn-warning btn-sm" onclick="addAdvance(${member.id})"><i class="fa-solid fa-hand-holding-dollar"></i> تسجيل سلفة</button>
+                        <h4 style="font-size:0.8rem; color: var(--text-sub); margin-top:10px;">سجل السلف:</h4>
+                        <ul style="font-size:0.85rem; padding-right:15px; margin-top:5px;">
+                            ${member.advances.map(a => `<li>تاريخ ${a.date}: سلفة بمبلغ ${a.amount.toLocaleString()} د.ع</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        // DASHBOARD & REPORTS CALCULATIONS
+        function renderDashboardAndReports() {
+            let totalIncome = 0;
+            let totalDiscounts = 0;
+
+            appData.students.forEach(s => {
+                totalIncome += s.payments.reduce((acc, p) => acc + p.amount, 0);
+                totalDiscounts += s.discountAmount;
+            });
+
+            const totalExpenses = appData.expenses.reduce((acc, e) => acc + e.amount, 0);
+            const totalStaffAdvances = appData.staff.reduce((acc, st) => acc + st.advances.reduce((a, b) => a + b.amount, 0), 0);
+            
+            const grandExpenses = totalExpenses + totalStaffAdvances;
+            const netProfit = totalIncome - grandExpenses;
+
+            document.getElementById('stat-income').innerText = `${totalIncome.toLocaleString()} د.ع`;
+            document.getElementById('stat-expenses').innerText = `${grandExpenses.toLocaleString()} د.ع`;
+            document.getElementById('stat-net').innerText = `${netProfit.toLocaleString()} د.ع`;
+            document.getElementById('stat-discounts').innerText = `${totalDiscounts.toLocaleString()} د.ع`;
+
+            // Reports View Summary Content
+            document.getElementById('reports-summary-content').innerHTML = `
+                <div class="print-row"><span>عدد الأطفال الكلي:</span> <strong>${appData.students.length} طفل</strong></div>
+                <div class="print-row"><span>إجمالي المقبوضات الفعلية:</span> <strong style="color:green;">${totalIncome.toLocaleString()} د.ع</strong></div>
+                <div class="print-row"><span>إجمالي التخفيضات والخصومات:</span> <strong style="color:orange;">${totalDiscounts.toLocaleString()} د.ع</strong></div>
+                <div class="print-row"><span>إجمالي المصاريف التشغيلية:</span> <strong style="color:red;">${totalExpenses.toLocaleString()} د.ع</strong></div>
+                <div class="print-row"><span>إجمالي سلف الموظفين:</span> <strong style="color:red;">${totalStaffAdvances.toLocaleString()} د.ع</strong></div>
+                <div class="print-row"><span>صافي الربح الفعلي:</span> <strong style="color:#007aff; font-size:1.1rem;">${netProfit.toLocaleString()} د.ع</strong></div>
+            `;
+
+            // Due Installments
+            const dueContainer = document.getElementById('dashboard-due-students');
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            const dueStudents = appData.students.filter(s => {
+                const totalRequired = (s.totalFee + s.busFee) - s.discountAmount;
+                const paid = s.payments.reduce((acc, p) => acc + p.amount, 0);
+                return (totalRequired - paid) > 0 && s.dueDate;
+            });
+
+            dueContainer.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>الطفل</th><th>المرحلة والقاعة</th><th>استحقاق القسط</th><th>المتبقي</th></tr>
+                    </thead>
+                    <tbody>
+                        ${dueStudents.map(s => {
+                            const totalRequired = (s.totalFee + s.busFee) - s.discountAmount;
+                            const paid = s.payments.reduce((acc, p) => acc + p.amount, 0);
+                            const isOverdue = s.dueDate <= todayStr;
+                            return `
+                                <tr>
+                                    <td>${s.name}</td>
+                                    <td>[${s.stage}] ${s.class}</td>
+                                    <td><span class="badge-ios ${isOverdue ? 'badge-red' : 'badge-orange'}">${s.dueDate}</span></td>
+                                    <td style="color: #ff3b30; font-weight:bold;">${(totalRequired - paid).toLocaleString()} د.ع</td>
+                                </tr>
+                            `;
+                        }).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function refreshUI() {
+            renderDashboardAndReports();
+            renderStudents();
+            renderAttendance();
+            renderBusRoutes();
+            renderBirthdays();
+            renderExpenses();
+            renderStaff();
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `kindergarten_full_backup_${new Date().toISOString().split('T')[0]}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        // Initialize Defaults
+        const todayStr = new Date().toISOString().split('T')[0];
+        document.getElementById('exp-date').value = todayStr;
+        document.getElementById('att-date-picker').value = todayStr;
+
+        loadData();
+        refreshUI();
+    </script>
+</body>
+</html>
